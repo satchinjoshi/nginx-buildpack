@@ -1,18 +1,31 @@
 #!/usr/bin/env bash
 
+CACHE_DIR=${2:-}
+
 set -e
 
 mkdir -p "$1/bin/"
+
+git clone https://github.com/kbuchacz/nginx-buildpack.git
+mv nginx-buildpack/bin/* ./bin
+echo '-----> nginx-buildpack: Default binaries copied to app/bin/'
+mv nginx-buildpack/config ./
+echo '-----> nginx-buildpack: Default config copied to app/config/'
+mv nginx-buildpack/scripts ./
+echo '-----> nginx-buildpack: Default scripts copied to app/scripts/'
+
+
+
 cp "bin/nginx-$STACK" "$1/bin/nginx"
 nginx_version=$(./bin/nginx-$STACK -V 2>&1 | head -1 | awk '{ print $NF }')
 echo "-----> nginx-buildpack: Installed ${nginx_version} to app/bin"
 cp bin/start-nginx "$1/bin/"
 echo '-----> nginx-buildpack: Added start-nginx to app/bin'
 
-mkdir -p "$1/config"
+mkdir $1/config
 
 cp config/mime.types "$1/config/"
-echo '-----> nginx-buildpack: Default mime.types copied to app/config/'
+echo '-----> nginx-buildpack: Default mime.types copied to app/config.'
 
 if [[ ! -f $1/config/nginx.conf.erb ]]; then
 	cp config/nginx.conf.erb "$1/config/"
@@ -20,4 +33,54 @@ if [[ ! -f $1/config/nginx.conf.erb ]]; then
 else
 	echo '-----> nginx-buildpack: Custom config found in app/config.'
 fi
+
+cd $1
+if [ -z "$NODE_BINARY" ];
+    then wget http://nodejs.org/dist/v0.12.4/node-v0.12.4-linux-x64.tar.gz;
+    else wget $NODE;
+fi
+tar -xzf $(ls | grep -o '^node.*\.tar\.gz$')
+export NODE_DIR=$(echo $(ls | grep -o '^node.*\.tar\.gz$') | rev | cut -c 8- | rev)
+export PATH=$PATH:$1/$NODE_DIR/bin/
+echo '-----> nginx-buildpack: Node installed'
+
+rm .bowerrc
+touch .bowerrc
+echo "{ \"directory\": \"app/bower_components\" }" >> .bowerrc
+mkdir -p $CACHE_DIR/bower_components
+cp -fR $CACHE_DIR/bower_components .
+echo '-----> nginx-buildpack: Copied bower_components from cache'
+
+mkdir -p $CACHE_DIR/node_modules
+cp -fR $CACHE_DIR/node_modules .
+echo '-----> nginx-buildpack: Copied node_modules from cache'
+
+npm install
+echo '-----> nginx-buildpack: Installed new npm modules'
+npm install bower
+
+export PATH=$PATH:$1/node_modules/bower/bin/
+echo '-----> nginx-buildpack: Installed bower'
+
+cp -fR node_modules $CACHE_DIR
+echo '-----> nginx-buildpack: Cached node_modules'
+
+bower install
+echo '-----> nginx-buildpack: Installed bower components'
+
+cp -fR bower_components $CACHE_DIR
+echo '-----> nginx-buildpack: Cached bower_components'
+
+if [ -z "$NGINX_SOURCES" ];
+    then wget http://nginx.org/download/nginx-1.8.0.tar.gz;
+    else wget $NGINX;
+fi
+tar -xzf $(ls | grep -o '^nginx.*\.tar\.gz$')
+export NGINX_DIR=$(echo $(ls | grep -o '^nginx.*\.tar\.gz$') | rev | cut -c 8- | rev)
+export PATH=$PATH:$1/$NGINX_DIR/bin/
+
+cd $NGINX_DIR
+./configure --sbin-path=/app/bin/
+make
+
 exit 0
