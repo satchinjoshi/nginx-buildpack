@@ -43,7 +43,7 @@ http {
 		}
         
         location /api {
-            proxy_pass <%= ENV["PROXY"] %>;;
+            proxy_pass <%= ENV["PROXY"] %>;
         }
 	}
 }
