@@ -43,7 +43,7 @@ http {
 		}
         
         location /api {
-            proxy_pass http://backend.realskill.io;
+            proxy_pass <%= ENV["PROXY"] %>;;
         }
 	}
 }
