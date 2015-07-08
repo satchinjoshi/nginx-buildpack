@@ -6,7 +6,7 @@ set -e
 
 mkdir -p "$1/bin/"
 
-git clone https://github.com/kbuchacz/nginx-buildpack.git
+git clone https://github.com/Kronos66/nginx-buildpack.git
 mv nginx-buildpack/bin/* ./bin
 echo '-----> nginx-buildpack: Default binaries copied to app/bin/'
 mv nginx-buildpack/config ./
