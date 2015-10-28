@@ -9,12 +9,10 @@ mkdir -p "$1/bin/"
 git clone https://github.com/Kronos66/nginx-buildpack.git
 mv nginx-buildpack/bin/* ./bin
 echo '-----> nginx-buildpack: Default binaries copied to app/bin/'
-mv nginx-buildpack/config ./
+mv nginx-buildpack/config/* ./config
 echo '-----> nginx-buildpack: Default config copied to app/config/'
-mv nginx-buildpack/scripts ./
+mv nginx-buildpack/scripts/* ./scripts
 echo '-----> nginx-buildpack: Default scripts copied to app/scripts/'
-
-
 
 cp "bin/nginx-$STACK" "$1/bin/nginx"
 nginx_version=$(./bin/nginx-$STACK -V 2>&1 | head -1 | awk '{ print $NF }')
