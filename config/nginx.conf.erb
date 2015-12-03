@@ -33,6 +33,7 @@ http {
 	server {
 		listen <%= ENV["PORT"] %>;
         root /app/<%= ENV["ROOT"] %>;
+    add_header expires max [always];
 		server_name _;
 		keepalive_timeout 5;
     gzip on;
