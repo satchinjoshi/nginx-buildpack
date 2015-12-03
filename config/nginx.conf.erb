@@ -32,7 +32,7 @@ http {
 
 	server {
 		listen <%= ENV["PORT"] %>;
-        root /app/app;
+        root /app/<%= ENV["ROOT"] %>;
 		server_name _;
 		keepalive_timeout 5;
 
