@@ -34,7 +34,7 @@ fi
 
 cd $1
 if [ -z "$NODE_BINARY" ];
-    then wget http://nodejs.org/dist/v0.12.4/node-v0.12.4-linux-x64.tar.gz;
+    then wget http://nodejs.org/dist/v10.9.0/node-v10.9.0-linux-x64.tar.gz;
     else wget $NODE;
 fi
 tar -xzf $(ls | grep -o '^node.*\.tar\.gz$')
